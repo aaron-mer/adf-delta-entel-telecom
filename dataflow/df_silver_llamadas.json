@@ -1,0 +1,100 @@
+{
+	"name": "df_silver_llamadas",
+	"properties": {
+		"folder": {
+			"name": "SILVER"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_bronze_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "cast1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          fecha_inicio as string,",
+				"          fecha_fin as string,",
+				"          numero as string,",
+				"          imei as string,",
+				"          rbs_utilizada as string,",
+				"          celda as string,",
+				"          latitud_longitud as string,",
+				"          volumen_subidos as long,",
+				"          volumen_descargados as long,",
+				"          volumen_total as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(fecha_inicio = trim(fecha_inicio),",
+				"          fecha_fin = trim(fecha_fin),",
+				"          numero = trim(numero),",
+				"          imei = trim(imei),",
+				"          rbs_utilizada = trim(rbs_utilizada),",
+				"          celda = trim(celda),",
+				"          latitud_longitud = trim(latitud_longitud)) ~> derivedColumn1",
+				"derivedColumn1 cast(output(",
+				"          fecha_inicio as string",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          fecha_inicio as string,",
+				"          fecha_fin as string,",
+				"          numero as string,",
+				"          imei as string,",
+				"          rbs_utilizada as string,",
+				"          celda as string,",
+				"          latitud_longitud as string,",
+				"          volumen_subidos as long,",
+				"          volumen_descargados as long,",
+				"          volumen_total as long",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          fecha_inicio,",
+				"          fecha_fin,",
+				"          numero,",
+				"          imei,",
+				"          rbs_utilizada,",
+				"          celda,",
+				"          latitud_longitud,",
+				"          volumen_subidos,",
+				"          volumen_descargados,",
+				"          volumen_total",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
