@@ -1,0 +1,63 @@
+{
+	"name": "ds_sql_bronze_llamadas",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_dw_entel",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "BRONZE"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "fecha_inicio",
+				"type": "nvarchar"
+			},
+			{
+				"name": "fecha_fin",
+				"type": "nvarchar"
+			},
+			{
+				"name": "numero",
+				"type": "nvarchar"
+			},
+			{
+				"name": "imei",
+				"type": "nvarchar"
+			},
+			{
+				"name": "rbs_utilizada",
+				"type": "nvarchar"
+			},
+			{
+				"name": "celda",
+				"type": "nvarchar"
+			},
+			{
+				"name": "latitud_longitud",
+				"type": "nvarchar"
+			},
+			{
+				"name": "volumen_subidos",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "volumen_descargados",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "volumen_total",
+				"type": "bigint",
+				"precision": 19
+			}
+		],
+		"typeProperties": {
+			"schema": "BRONZE",
+			"table": "LLAMADAS"
+		}
+	}
+}
