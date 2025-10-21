@@ -1,0 +1,55 @@
+{
+	"name": "ds_hecho_datos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_dw_entel",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "GOLD"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_hecho",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_tiempo",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_usuario",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_celda",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "volumen_subidos",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "volumen_descargados",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "volumen_total",
+				"type": "bigint",
+				"precision": 19
+			}
+		],
+		"typeProperties": {
+			"schema": "GOLD",
+			"table": "hecho_datos"
+		}
+	}
+}
