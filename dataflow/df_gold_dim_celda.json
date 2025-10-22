@@ -1,5 +1,5 @@
 {
-	"name": "df_gold_dim_usuario",
+	"name": "df_gold_dim_celda",
 	"properties": {
 		"folder": {
 			"name": "GOLD"
@@ -18,7 +18,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "ds_dim_usuario",
+						"referenceName": "ds_dim_celda",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -27,20 +27,22 @@
 			"transformations": [],
 			"scriptLines": [
 				"source(output(",
-				"          numero as string,",
-				"          imei as string",
+				"          rbs_utilizada as string,",
+				"          celda as string,",
+				"          latitud_longitud as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: 'SELECT DISTINCT numero, imei\\r\\nFROM SILVER.LLAMADAS\\r\\n',",
+				"     query: 'SELECT DISTINCT rbs_utilizada, celda, latitud_longitud\\nFROM SILVER.LLAMADAS\\n',",
 				"     format: 'query') ~> source1",
 				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          id_usuario as integer,",
-				"          numero as string,",
-				"          imei as string",
+				"          id_celda as integer,",
+				"          rbs_utilizada as string,",
+				"          celda as string,",
+				"          latitud_longitud as string",
 				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
@@ -51,8 +53,9 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          numero,",
-				"          imei",
+				"          rbs_utilizada,",
+				"          celda,",
+				"          latitud_longitud",
 				"     )) ~> sink1"
 			]
 		}
