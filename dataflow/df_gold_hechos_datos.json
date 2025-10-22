@@ -1,0 +1,160 @@
+{
+	"name": "df_gold_hechos_datos",
+	"properties": {
+		"folder": {
+			"name": "GOLD"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_dim_tiempo",
+						"type": "DatasetReference"
+					},
+					"name": "dimUsuario"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_dim_tiempo",
+						"type": "DatasetReference"
+					},
+					"name": "dimTiempo"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_dim_celda",
+						"type": "DatasetReference"
+					},
+					"name": "dimCelda"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_hecho_datos",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "lookup2"
+				},
+				{
+					"name": "lookup3"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          fecha_inicio as string,",
+				"          fecha_fin as string,",
+				"          numero as string,",
+				"          imei as string,",
+				"          rbs_utilizada as string,",
+				"          celda as string,",
+				"          latitud_longitud as string,",
+				"          volumen_subidos as long,",
+				"          volumen_descargados as long,",
+				"          volumen_total as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source(output(",
+				"          id_usuario as integer,",
+				"          numero as string,",
+				"          imei as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT id_usuario, numero, imei FROM GOLD.dim_usuario\\r\\n',",
+				"     format: 'query') ~> dimUsuario",
+				"source(output(",
+				"          id_tiempo as integer,",
+				"          fecha_inicio as string,",
+				"          fecha_fin as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT id_tiempo, fecha_inicio, fecha_fin FROM GOLD.dim_tiempo',",
+				"     format: 'query') ~> dimTiempo",
+				"source(output(",
+				"          id_celda as integer,",
+				"          rbs_utilizada as string,",
+				"          celda as string,",
+				"          latitud_longitud as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT id_celda, rbs_utilizada, celda, latitud_longitud FROM GOLD.dim_celda',",
+				"     format: 'query') ~> dimCelda",
+				"source1, dimUsuario lookup(source1@numero == dimUsuario@numero,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1, dimTiempo lookup(source1@fecha_inicio == dimTiempo@fecha_inicio",
+				"     && source1@fecha_fin == dimTiempo@fecha_fin,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup2",
+				"lookup2, dimCelda lookup(source1@celda == dimCelda@celda,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup3",
+				"lookup3 select(mapColumn(",
+				"          id_usuario,",
+				"          numero = dimUsuario@numero,",
+				"          imei = dimUsuario@imei,",
+				"          id_tiempo,",
+				"          id_celda,",
+				"          rbs_utilizada = dimCelda@rbs_utilizada",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_hecho as integer,",
+				"          id_tiempo as integer,",
+				"          id_usuario as integer,",
+				"          id_celda as integer,",
+				"          volumen_subidos as long,",
+				"          volumen_descargados as long,",
+				"          volumen_total as long",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_tiempo,",
+				"          id_usuario,",
+				"          id_celda",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
